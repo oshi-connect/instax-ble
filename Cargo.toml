@@ -1,0 +1,32 @@
+[package]
+name = "instax-ble"
+version = "0.1.0"
+edition = "2021"
+description = "Bluetooth Low Energy driver for Fujifilm Instax Link printers (Mini, Square, Wide)"
+license = "MIT"
+repository = "https://github.com/oshi-connect/instax-ble"
+readme = "README.md"
+keywords = ["instax", "bluetooth", "ble", "printer", "fujifilm"]
+categories = ["hardware-support"]
+rust-version = "1.85"
+
+[features]
+# Pure protocol, image pipeline, and the print I/O thread build with no
+# default features, so a headless or test build skips the platform Bluetooth
+# stack. Turn on `ble` for the real CoreBluetooth / BlueZ / WinRT transport.
+default = []
+ble = ["dep:btleplug", "dep:uuid", "dep:futures-util", "dep:tokio"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+# JPEG encode for transfer, and JPEG decode in the pipeline tests.
+image = { version = "0.25", default-features = false, features = ["jpeg"] }
+
+btleplug = { version = "0.11", optional = true }
+uuid = { version = "1", optional = true }
+futures-util = { version = "0.3", default-features = false, features = ["std"], optional = true }
+tokio = { version = "1", default-features = false, features = ["rt", "time", "sync"], optional = true }
+
+[lints.clippy]
+redundant_clone = "warn"
+needless_collect = "warn"
