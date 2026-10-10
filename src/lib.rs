@@ -39,8 +39,8 @@ pub use io::{
     PRINT_SHUTDOWN_TIMEOUT,
 };
 pub use packet::{
-    apply_info, ble_transfer_packets, decode, discovered_printer, download_chunk_size,
-    encode, fragments, image_to_chunks, is_instax_name, matches_reply, max_image_bytes_from_support,
+    apply_info, ble_transfer_packets, decode, discovered_printer, download_chunk_size, encode,
+    fragments, image_to_chunks, is_instax_name, matches_reply, max_image_bytes_from_support,
     model_from_image_support, opcode_name, packet_summary, preferred_printer, response_summary,
     Response, FRAGMENT_SIZE,
 };

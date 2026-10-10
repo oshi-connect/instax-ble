@@ -1,9 +1,7 @@
 //! Instax packet layer. Pure bytes, no radio. The transport puts these on the
 //! air; a headless build drops that module and keeps the builders.
 
-use crate::print::{
-    Battery, DiscoveredPrinter, PrintError, PrinterModel, PrinterStatus, Signal,
-};
+use crate::print::{Battery, DiscoveredPrinter, PrintError, PrinterModel, PrinterStatus, Signal};
 
 pub const OPCODE_SUPPORT_FUNCTION_INFO: u16 = 0x0002;
 pub const OPCODE_PRINT_IMAGE_DOWNLOAD_START: u16 = 0x1000;
@@ -462,7 +460,10 @@ mod tests {
     #[test]
     fn battery_payload_becomes_a_band_not_a_percent() {
         let mut status = PrinterStatus::default();
-        apply_info(&mut status, &decode(&info_packet(INFO_TYPE_BATTERY)).unwrap());
+        apply_info(
+            &mut status,
+            &decode(&info_packet(INFO_TYPE_BATTERY)).unwrap(),
+        );
         // The request packet is not a reply. A live battery reply carries
         // charging in byte 0 and the percent in byte 1.
         apply_info(
