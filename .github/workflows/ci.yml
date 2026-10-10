@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: test
+  lint:
+    name: lint
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -44,11 +44,35 @@ jobs:
       - name: Clippy (BLE)
         run: cargo clippy --all-targets --features ble -- -D warnings
 
+      - name: Release helper tests
+        run: node --experimental-strip-types --test scripts/release/*.test.ts
+
+  test:
+    name: test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Linux BLE build deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libdbus-1-dev pkg-config
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+
       - name: Test
         run: cargo test
 
       - name: Test (BLE)
         run: cargo test --features ble
-
-      - name: Release helper tests
-        run: node --experimental-strip-types --test scripts/release/*.test.ts
