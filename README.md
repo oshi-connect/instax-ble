@@ -74,6 +74,12 @@ signed bundle so the Bluetooth permission grant sticks.
 See [`docs/compatibility.md`](docs/compatibility.md) for the image-transfer
 contract, the byte-limit fallback, and a captured Mini Link+ hardware check.
 
+## Releases
+
+A green `CI` run on `main` creates a CalVer GitHub release (`vYYYY.MM.DD`). A later release on the same UTC day uses `.2`, then `.3`. The workflow posts that release to both Discord channels: OC Industry `#release-notes` and OC Backoffice `#ci`.
+
+The repository secret `DISCORD_BOT_TOKEN` must be set before a release can post. This token is the Kanichan bot. The bot must be a member of both servers, and it must have Send Messages and Embed Links in those channels.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

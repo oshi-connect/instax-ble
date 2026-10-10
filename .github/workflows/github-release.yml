@@ -1,0 +1,122 @@
+name: GitHub Release
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+env:
+  # OC Industry server — #release-notes
+  DISCORD_CHANNEL_OC_INDUSTRY_RELEASE_NOTES: '1520515559072993373'
+  # OC Backoffice — #ci
+  DISCORD_CHANNEL_OC_BACKOFFICE_CI: '1540662723095035934'
+
+jobs:
+  release:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+      PRODUCT: instax-ble
+      TARGET_SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Skip if this commit already has a release
+        id: skip
+        run: |
+          set -euo pipefail
+          git fetch --tags --force origin
+          for tag in $(git tag --points-at "${TARGET_SHA}"); do
+            if gh release view "${tag}" >/dev/null 2>&1; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "Release already exists for ${TARGET_SHA} (${tag})"
+              exit 0
+            fi
+          done
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Compute next CalVer tag
+        if: steps.skip.outputs.skip != 'true'
+        id: tag
+        run: |
+          set -euo pipefail
+          git fetch --tags --force origin
+          TAG="$(
+            git tag -l 'v*' \
+              | node --experimental-strip-types scripts/release/cli.ts next-tag
+          )"
+          echo "value=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Next tag: ${TAG}"
+
+      - name: Create GitHub release
+        if: steps.skip.outputs.skip != 'true'
+        id: release
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.value }}"
+          gh release create "${TAG}" \
+            --generate-notes \
+            --target "${TARGET_SHA}" \
+            --title "${PRODUCT} ${TAG}"
+          gh release view "${TAG}" --json url,body --jq '.url' > release-url.txt
+          gh release view "${TAG}" --json url,body --jq '.body' > release-body.md
+          echo "url=$(cat release-url.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Post release to Discord
+        if: steps.skip.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          if [ -z "${DISCORD_BOT_TOKEN:-}" ]; then
+            echo "error: DISCORD_BOT_TOKEN secret is required" >&2
+            exit 1
+          fi
+
+          TAG="${{ steps.tag.outputs.value }}"
+          PAYLOAD="$(
+            node --experimental-strip-types scripts/release/cli.ts discord-payload \
+              "${PRODUCT}" \
+              "${TAG}" \
+              "${{ steps.release.outputs.url }}" \
+              release-body.md
+          )"
+
+          # Keep channel targets in workflow env vars above for easy edits.
+          declare -a CHANNELS=(
+            "${DISCORD_CHANNEL_OC_INDUSTRY_RELEASE_NOTES}"
+            "${DISCORD_CHANNEL_OC_BACKOFFICE_CI}"
+          )
+
+          for channel_id in "${CHANNELS[@]}"; do
+            if [ -z "${channel_id}" ]; then
+              continue
+            fi
+            echo "Posting to channel ${channel_id}"
+            http_code="$(
+              curl -sS -o /tmp/discord-response.json -w '%{http_code}' \
+                -X POST "https://discord.com/api/v10/channels/${channel_id}/messages" \
+                -H "Authorization: Bot ${DISCORD_BOT_TOKEN}" \
+                -H "Content-Type: application/json" \
+                -d "${PAYLOAD}"
+            )"
+            if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 300 ]; then
+              echo "Discord API returned ${http_code}" >&2
+              cat /tmp/discord-response.json >&2
+              exit 1
+            fi
+          done
