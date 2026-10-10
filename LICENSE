@@ -1,16 +1,37 @@
-MIT License
-
+Oshi Connect Non-Commercial License
 Copyright (c) 2026 Oshi Connect
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+of this software and associated documentation files (the "Software"), to use,
+copy, modify, merge, publish, and distribute the Software, subject to the
+following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. Attribution. The above copyright notice, this permission notice, and clear
+   credit to Oshi Connect must be included in all copies or substantial
+   portions of the Software, and in any public materials that describe or
+   redistribute the Software.
+
+2. Non-Commercial Use. You may use the Software only for non-commercial
+   purposes. "Commercial" means any use intended for or directed toward
+   commercial advantage or monetary compensation, including (without
+   limitation) selling the Software, offering it as part of a paid product or
+   service, or using it in internal business operations that generate revenue.
+
+3. Commercial Use. Commercial use is prohibited unless both of the following
+   are true:
+
+   (a) Oshi Connect has granted you prior explicit written permission for that
+       commercial use; and
+
+   (b) Oshi Connect is clearly and prominently mentioned in connection with
+       that commercial use (for example, in product documentation, about or
+       credits screens, and marketing materials that describe the Software).
+
+   Contact Oshi Connect to request commercial permission.
+
+4. No Sublicensing of Broader Rights. You may not sublicense the Software under
+   terms that grant rights broader than this license, including any grant of
+   commercial rights without the conditions in section 3.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
