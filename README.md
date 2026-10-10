@@ -82,4 +82,9 @@ The repository secret `DISCORD_BOT_TOKEN` must be set before a release can post.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Non-commercial use only. See [LICENSE](LICENSE).
+
+You may use, modify, and distribute this software for non-commercial purposes
+with clear credit to **Oshi Connect**. Commercial use requires prior explicit
+written permission from Oshi Connect and clear, prominent mention of Oshi
+Connect.
